@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eloah Vendas</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #080808;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 25px 15px;
+  text-align: center;
+  background: #111;
+  border-bottom: 1px solid #333;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: 2px;
+}
+
+header p { color: #aaa; }
+
+.banner {
+  padding: 45px 20px;
+  text-align: center;
+  background: linear-gradient(135deg,#191919,#050505);
+}
+
+.banner h2 { font-size: 30px; }
+.banner p { color: #bbb; }
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+h2.section-title {
+  border-left: 4px solid white;
+  padding-left: 12px;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+  gap: 15px;
+}
+
+.product {
+  background: #151515;
+  padding: 20px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+}
+
+.product h3 { margin-top: 0; }
+.price { font-size: 23px; font-weight: bold; }
+
+button {
+  background: white;
+  color: black;
+  border: none;
+  padding: 12px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.product button { width: 100%; }
+
+button:hover { opacity: .8; }
+
+.cart {
+  background: #151515;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 35px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+
+.remove {
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+}
+
+.total {
+  font-size: 23px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+#copyOrder { width: 100%; }
+
+footer {
+  margin-top: 40px;
+  padding: 25px;
+  background: #111;
+  text-align: center;
+  color: #aaa;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ELOAH VENDAS</h1>
+  <p>Sua loja digital de confiança</p>
+</header>
+
+<section class="banner">
+  <h2>Bem-vindo à Eloah Vendas!</h2>
+  <p>Seguidores, curtidas e muito mais.</p>
+</section>
+
+<main>
+
+<h2 class="section-title">Seguidores brasileiros 🇧🇷</h2>
+<div class="products" id="brazil"></div>
+
+<h2 class="section-title">Seguidores mundiais 🌎</h2>
+<div class="products" id="world"></div>
+
+<h2 class="section-title">Curtidas ❤️</h2>
+<div class="products" id="likes"></div>
+
+<section class="cart">
+  <h2>🛒 Meu carrinho</h2>
+  <div id="cartItems">Seu carrinho está vazio.</div>
+  <div class="total" id="total">Total: R$ 0,00</div>
+  <button id="copyOrder" onclick="copyOrder()">
+    COPIAR MEU PEDIDO
+  </button>
+</section>
+
+</main>
+
+<footer>
+  <p>© 2026 Eloah Vendas</p>
+  <p>Obrigado pela preferência!</p>
+</footer>
+
+<script>
+const products = [
+  {id:1, name:"100 seguidores brasileiros", price:3, group:"brazil"},
+  {id:2, name:"500 seguidores brasileiros", price:12, group:"brazil"},
+  {id:3, name:"1.000 seguidores brasileiros", price:23.50, group:"brazil"},
+  {id:4, name:"2.000 seguidores brasileiros", price:42, group:"brazil"},
+  {id:5, name:"3.000 seguidores brasileiros", price:62.50, group:"brazil"},
+  {id:6, name:"5.000 seguidores brasileiros", price:115, group:"brazil"},
+
+  {id:7, name:"100 seguidores mundiais", price:0.80, group:"world"},
+  {id:8, name:"500 seguidores mundiais", price:3.50, group:"world"},
+  {id:9, name:"1.000 seguidores mundiais", price:7, group:"world"},
+  {id:10, name:"5.000 seguidores mundiais", price:35, group:"world"},
+  {id:11, name:"10.000 seguidores mundiais", price:60, group:"world"},
+
+  {id:12, name:"100 curtidas mundiais", price:1.20, group:"likes"},
+  {id:13, name:"500 curtidas mundiais", price:6.50, group:"likes"},
+  {id:14, name:"1.000 curtidas mundiais", price:12, group:"likes"},
+  {id:15, name:"3.000 curtidas mundiais", price:44.50, group:"likes"},
+  {id:16, name:"5.000 curtidas mundiais", price:65, group:"likes"},
+  {id:17, name:"10.000 curtidas mundiais", price:100, group:"likes"}
+];
+
+let cart = [];
+
+function money(value) {
+  return value.toLocaleString("pt-BR", {
+    style:"currency", currency:"BRL"
+  });
+}
+
+products.forEach(product => {
+  document.getElementById(product.group).innerHTML += `
+    <div class="product">
+      <h3>${product.name}</h3>
+      <p class="price">${money(product.price)}</p>
+      <button onclick="addToCart(${product.id})">
+        ADICIONAR AO CARRINHO
+      </button>
+    </div>
+  `;
+});
+
+function addToCart(id) {
+  const item = cart.find(p => p.id === id);
+
+  if(item) {
+    item.quantity++;
+  } else {
+    cart.push({
+      ...products.find(p => p.id === id),
+      quantity:1
+    });
+  }
+
+  renderCart();
+}
+
+function removeItem(id) {
+  cart = cart.filter(p => p.id !== id);
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById("cartItems");
+
+  if(cart.length === 0) {
+    container.innerHTML = "Seu carrinho está vazio.";
+  } else {
+    container.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <span>${item.name} × ${item.quantity}</span>
+        <span>
+          ${money(item.price * item.quantity)}
+          <button class="remove"
+            onclick="removeItem(${item.id})">X</button>
+        </span>
+      </div>
+    `).join("");
+  }
+
+  const total = cart.reduce(
+    (sum,item) => sum + item.price * item.quantity, 0
+  );
+
+  document.getElementById("total").textContent =
+    "Total: " + money(total);
+}
+
+function copyOrder() {
+  if(cart.length === 0) {
+    alert("Adicione produtos ao carrinho primeiro!");
+    return;
+  }
+
+  const total = cart.reduce(
+    (sum,item) => sum + item.price * item.quantity, 0
+  );
+
+  const order = "PEDIDO - ELOAH VENDAS\n\n" +
+    cart.map(item =>
+      item.name + " x " + item.quantity +
+      " = " + money(item.price * item.quantity)
+    ).join("\n") +
+    "\n\nTOTAL: " + money(total);
+
+  navigator.clipboard.writeText(order)
+    .then(() => alert("Pedido copiado!"))
+    .catch(() => alert("Não foi possível copiar. Tente novamente."));
+}
+</script>
+
+</body>
+</html>
